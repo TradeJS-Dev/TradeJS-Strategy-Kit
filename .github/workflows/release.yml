@@ -1,0 +1,19 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    uses: TradeJS-Dev/TradeJS-Workflows/.github/workflows/strategy-publish.yml@v1
+    secrets:
+      npm-token: ${{ secrets.NPM_TOKEN }}
