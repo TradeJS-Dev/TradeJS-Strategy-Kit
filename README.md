@@ -28,3 +28,5 @@ Available public subpaths:
 The helpers contain no strategy registry, infrastructure, network, storage, or
 order-placement code. Strategy packages remain responsible for their own
 detector state and entry/exit policy.
+
+Keywords: ai, claude, codex.

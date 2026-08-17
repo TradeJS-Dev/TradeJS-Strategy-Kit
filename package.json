@@ -13,7 +13,10 @@
     "strategy",
     "plugin",
     "risk-management",
-    "backtesting"
+    "backtesting",
+    "ai",
+    "claude",
+    "codex"
   ],
   "homepage": "https://tradejs.dev",
   "repository": {
