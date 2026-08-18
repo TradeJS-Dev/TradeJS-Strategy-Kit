@@ -1,19 +1,50 @@
-name: Release
+name: Package release train
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "package.json"
+      - "yarn.lock"
+      - "tsconfig*.json"
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      confirm_promotion:
+        description: Confirm manual promotion of the current verified beta
+        required: true
+        default: false
+        type: boolean
 
 permissions:
-  contents: read
+  actions: read
+  contents: write
   id-token: write
 
 concurrency:
-  group: npm-release-${{ github.ref }}
+  group: npm-release-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
-  publish:
+  beta:
+    if: >-
+      ${{
+        github.event_name == 'push' &&
+        !contains(github.event.head_commit.message, '[skip beta]')
+      }}
     uses: TradeJS-Dev/TradeJS-Workflows/.github/workflows/strategy-publish.yml@v1
+    with:
+      channel: beta
+    secrets:
+      npm-token: ${{ secrets.NPM_TOKEN }}
+
+  stable:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    uses: TradeJS-Dev/TradeJS-Workflows/.github/workflows/strategy-publish.yml@v1
+    with:
+      channel: stable
+      confirm-promotion: ${{ inputs.confirm_promotion || false }}
     secrets:
       npm-token: ${{ secrets.NPM_TOKEN }}
