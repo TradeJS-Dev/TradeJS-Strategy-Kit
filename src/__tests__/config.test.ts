@@ -90,6 +90,36 @@ describe("createStrategyConfigParser", () => {
       ]);
     }
   });
+
+  it("validates declared optional scalar fields without materializing them", () => {
+    const parseDirectionalConfig = createStrategyConfigParser({
+      strategyName: "Directional",
+      defaults: { THRESHOLD: 1 },
+      optionalScalarFields: {
+        THRESHOLD_LONG: "number",
+        THRESHOLD_SHORT: "number",
+      },
+    });
+
+    expect(parseDirectionalConfig({})).toEqual({ THRESHOLD: 1 });
+    expect(parseDirectionalConfig({ THRESHOLD_SHORT: 2 })).toEqual({
+      THRESHOLD: 1,
+      THRESHOLD_SHORT: 2,
+    });
+    expect(() => parseDirectionalConfig({ THRESHOLD_LONG: "2" })).toThrow(
+      "Directional.THRESHOLD_LONG must be a finite number",
+    );
+  });
+
+  it("rejects optional scalar declarations that shadow defaults", () => {
+    expect(() =>
+      createStrategyConfigParser({
+        strategyName: "Directional",
+        defaults: { THRESHOLD: 1 },
+        optionalScalarFields: { THRESHOLD: "number" },
+      }),
+    ).toThrow("Directional optional field THRESHOLD duplicates a default");
+  });
 });
 
 describe("resolveDirectionalConfigNumber", () => {

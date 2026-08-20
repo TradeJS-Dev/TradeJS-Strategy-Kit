@@ -14,9 +14,11 @@ export type ValidatedStrategyRegistryEntry<
   parseConfig: StrategyConfigParser<TConfig>;
 };
 
-type ScalarKind = "boolean" | "number" | "string";
+export type StrategyConfigScalarKind = "boolean" | "number" | "string";
 
-const SHARED_STRATEGY_CONFIG_FIELDS: Readonly<Record<string, ScalarKind>> = {
+const SHARED_STRATEGY_CONFIG_FIELDS: Readonly<
+  Record<string, StrategyConfigScalarKind>
+> = {
   ENABLE: "boolean",
   INTERVAL: "string",
   UNIVERSE: "string",
@@ -65,7 +67,10 @@ const describeExpectedValue = (sample: unknown): string => {
   return "the configured value type";
 };
 
-const isValueOfKind = (value: unknown, kind: ScalarKind): boolean =>
+const isValueOfKind = (
+  value: unknown,
+  kind: StrategyConfigScalarKind,
+): boolean =>
   kind === "number"
     ? typeof value === "number" && Number.isFinite(value)
     : typeof value === kind;
@@ -82,11 +87,13 @@ const isValueLikeSample = (value: unknown, sample: unknown): boolean => {
 const validateAndMerge = ({
   input,
   defaults,
+  optionalScalarFields,
   path,
   issues,
 }: {
   input: Record<string, unknown>;
   defaults: Record<string, unknown>;
+  optionalScalarFields: Readonly<Record<string, StrategyConfigScalarKind>>;
   path: string;
   issues: string[];
 }): Record<string, unknown> => {
@@ -97,13 +104,14 @@ const validateAndMerge = ({
     const defaultValue = defaults[key];
 
     if (!(key in defaults)) {
-      const sharedKind = SHARED_STRATEGY_CONFIG_FIELDS[key];
-      if (!sharedKind) {
+      const scalarKind =
+        optionalScalarFields[key] ?? SHARED_STRATEGY_CONFIG_FIELDS[key];
+      if (!scalarKind) {
         issues.push(`${fieldPath} is not allowed`);
-      } else if (!isValueOfKind(inputValue, sharedKind)) {
+      } else if (!isValueOfKind(inputValue, scalarKind)) {
         issues.push(
           `${fieldPath} must be ${
-            sharedKind === "number" ? "a finite number" : `a ${sharedKind}`
+            scalarKind === "number" ? "a finite number" : `a ${scalarKind}`
           }`,
         );
       } else {
@@ -123,6 +131,7 @@ const validateAndMerge = ({
       result[key] = validateAndMerge({
         input: inputValue,
         defaults: defaultValue,
+        optionalScalarFields: {},
         path: fieldPath,
         issues,
       });
@@ -161,15 +170,30 @@ export class StrategyConfigValidationError extends Error {
 export const createStrategyConfigParser = <TConfig extends StrategyConfig>({
   strategyName,
   defaults,
+  optionalScalarFields = {},
 }: {
   strategyName: string;
   defaults: TConfig;
+  optionalScalarFields?: Readonly<Record<string, StrategyConfigScalarKind>>;
 }): StrategyConfigParser<TConfig> => {
   if (!strategyName.trim()) {
     throw new Error("strategyName must not be empty");
   }
   if (!isRecord(defaults)) {
     throw new Error(`${strategyName} defaults must be an object`);
+  }
+  for (const [key, kind] of Object.entries(optionalScalarFields)) {
+    if (!key.trim()) {
+      throw new Error(`${strategyName} optional field name must not be empty`);
+    }
+    if (key in defaults) {
+      throw new Error(
+        `${strategyName} optional field ${key} duplicates a default`,
+      );
+    }
+    if (kind !== "boolean" && kind !== "number" && kind !== "string") {
+      throw new Error(`${strategyName} optional field ${key} has invalid kind`);
+    }
   }
 
   return (input: unknown): TConfig => {
@@ -183,6 +207,7 @@ export const createStrategyConfigParser = <TConfig extends StrategyConfig>({
     const parsed = validateAndMerge({
       input,
       defaults,
+      optionalScalarFields,
       path: strategyName,
       issues,
     });
