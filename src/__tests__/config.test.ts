@@ -96,18 +96,34 @@ describe("createStrategyConfigParser", () => {
       strategyName: "Directional",
       defaults: { THRESHOLD: 1 },
       optionalScalarFields: {
+        LABEL: "string",
+        STRICT: "boolean",
         THRESHOLD_LONG: "number",
         THRESHOLD_SHORT: "number",
       },
     });
 
     expect(parseDirectionalConfig({})).toEqual({ THRESHOLD: 1 });
-    expect(parseDirectionalConfig({ THRESHOLD_SHORT: 2 })).toEqual({
+    expect(
+      parseDirectionalConfig({
+        LABEL: "production",
+        STRICT: false,
+        THRESHOLD_SHORT: 2,
+      }),
+    ).toEqual({
       THRESHOLD: 1,
+      LABEL: "production",
+      STRICT: false,
       THRESHOLD_SHORT: 2,
     });
     expect(() => parseDirectionalConfig({ THRESHOLD_LONG: "2" })).toThrow(
       "Directional.THRESHOLD_LONG must be a finite number",
+    );
+    expect(() => parseDirectionalConfig({ LABEL: false })).toThrow(
+      "Directional.LABEL must be a string",
+    );
+    expect(() => parseDirectionalConfig({ STRICT: "false" })).toThrow(
+      "Directional.STRICT must be a boolean",
     );
   });
 
