@@ -35,3 +35,7 @@ promotes the current verified beta to stable `latest`; production never consumes
 prereleases.
 
 Keywords: ai, claude, codex.
+
+## Runtime host contract
+
+All `@tradejs/*` runtime packages are peer dependencies. The consuming TradeJS Project owns their exact installed versions and package manifest, so this package never loads a hidden nested engine, types package, indicator package, or Strategy Kit. Repository builds use matching dev dependencies only.

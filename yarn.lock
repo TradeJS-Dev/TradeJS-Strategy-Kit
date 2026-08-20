@@ -1098,6 +1098,9 @@ __metadata:
     ts-jest: "npm:^29.2.5"
     tsup: "npm:^8.5.1"
     typescript: "npm:^5.9.2"
+  peerDependencies:
+    "@tradejs/core": ^3.0.1
+    "@tradejs/types": ^3.0.1
   languageName: unknown
   linkType: soft
 
