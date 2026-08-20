@@ -9,7 +9,7 @@ export type StrategyConfigParser<TConfig extends StrategyConfig> = (
 ) => TConfig;
 
 export type ValidatedStrategyRegistryEntry<
-  TConfig extends StrategyConfig = StrategyConfig,
+  TConfig extends StrategyConfig = any,
 > = StrategyRegistryEntry<TConfig> & {
   parseConfig: StrategyConfigParser<TConfig>;
 };

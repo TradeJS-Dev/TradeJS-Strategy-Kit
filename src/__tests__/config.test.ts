@@ -6,6 +6,16 @@ import {
   resolveDirectionalConfigBoolean,
   resolveDirectionalConfigNumber,
 } from "../config";
+import type { ValidatedStrategyRegistryEntry } from "../config";
+
+it("collects entries with strategy-specific config contracts", () => {
+  const specificEntry = null as unknown as ValidatedStrategyRegistryEntry<{
+    REQUIRED_NUMBER: number;
+  }>;
+  const entries: ValidatedStrategyRegistryEntry[] = [specificEntry];
+
+  expect(entries).toHaveLength(1);
+});
 
 describe("createStrategyConfigParser", () => {
   const parseConfig = createStrategyConfigParser({
