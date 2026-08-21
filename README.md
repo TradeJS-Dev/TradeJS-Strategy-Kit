@@ -29,10 +29,10 @@ The helpers contain no strategy registry, infrastructure, network, storage, or
 order-placement code. Strategy packages remain responsible for their own
 detector state and entry/exit policy.
 
-Package publishing is beta-first. Relevant pushes publish a unique prerelease
-and validate it in the production-like Project image. Weekly automation alone
-promotes the current verified beta to stable `latest`; production never consumes
-prereleases.
+Package publishing is beta-first. Relevant pushes publish a unique prerelease,
+run the repository checks, and import the published tarball in a clean npm
+consumer. Weekly automation alone promotes the current verified beta to stable
+`latest`; production never consumes prereleases.
 
 Keywords: ai, claude, codex.
 
