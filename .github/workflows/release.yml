@@ -14,12 +14,6 @@ on:
   schedule:
     - cron: "0 4 * * 1"
   workflow_dispatch:
-    inputs:
-      confirm_promotion:
-        description: Confirm manual promotion of the current verified beta
-        required: true
-        default: false
-        type: boolean
 
 permissions:
   actions: read
@@ -48,6 +42,5 @@ jobs:
     uses: TradeJS-Dev/TradeJS-Workflows/.github/workflows/strategy-publish.yml@v1
     with:
       channel: stable
-      confirm-promotion: ${{ inputs.confirm_promotion || false }}
     secrets:
       npm-token: ${{ secrets.NPM_TOKEN }}
