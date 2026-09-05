@@ -91,6 +91,16 @@ describe("createStrategyConfigParser", () => {
     }
   });
 
+  it.each([
+    "SLIPPAGE_BASE_BPS",
+    "SLIPPAGE_MARKET_IMPACT_BPS",
+    "MAKER_FEE_RATE",
+    "TAKER_FEE_RATE",
+    "FEE_PERCENT",
+  ])("rejects ambiguous cost field %s", (field) => {
+    expect(() => parseConfig({ [field]: 0.001 })).toThrow(field);
+  });
+
   it("validates declared optional scalar fields without materializing them", () => {
     const parseDirectionalConfig = createStrategyConfigParser({
       strategyName: "Directional",

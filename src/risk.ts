@@ -56,10 +56,19 @@ export const buildTradeEconomics = ({
 }: TradeEconomicsParams): TradeEconomics => {
   const normalizedFeeRate = normalizeRate(feeRate);
   const slippageRate = normalizeRate(slippageBps) / 10_000;
-  const executionCostRate = normalizedFeeRate + slippageRate;
-  const entryCost = Math.abs(entryPrice) * executionCostRate;
-  const stopCost = Math.abs(stopLossPrice) * executionCostRate;
-  const targetCost = Math.abs(takeProfitPrice) * executionCostRate;
+  const side = stopLossPrice < entryPrice ? 1 : -1;
+  const entryFill = entryPrice * (1 + side * slippageRate);
+  const stopFill = stopLossPrice * (1 - side * slippageRate);
+  const targetFill = takeProfitPrice * (1 - side * slippageRate);
+  const entryCost =
+    Math.abs(entryPrice) * slippageRate +
+    Math.abs(entryFill) * normalizedFeeRate;
+  const stopCost =
+    Math.abs(stopLossPrice) * slippageRate +
+    Math.abs(stopFill) * normalizedFeeRate;
+  const targetCost =
+    Math.abs(takeProfitPrice) * slippageRate +
+    Math.abs(targetFill) * normalizedFeeRate;
   const grossRiskPerUnit = Math.abs(entryPrice - stopLossPrice);
   const grossRewardPerUnit = Math.abs(takeProfitPrice - entryPrice);
   const roundTripEntryStopCostPerUnit = entryCost + stopCost;
