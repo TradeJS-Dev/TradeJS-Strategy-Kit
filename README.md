@@ -29,6 +29,14 @@ The helpers contain no strategy registry, infrastructure, network, storage, or
 order-placement code. Strategy packages remain responsible for their own
 detector state and entry/exit policy.
 
+Cost-isolated strategies create their parser with
+`createCostIsolatedStrategyConfigParser` from
+`@tradejs/strategy-kit/config`. The parser accepts the strategy estimates
+`RISK_FEE_RATE`, `RISK_SLIPPAGE_BPS`, and `RISK_MARKET_IMPACT_BPS`, and it
+rejects the old ambiguous `FEE_PERCENT` and simulator cost fields. The risk
+helpers use these estimates for entry checks and position sizing. Backtest
+fees, slippage, and funding are separate run inputs.
+
 Package publishing is beta-first. Relevant pushes publish a unique prerelease,
 run the repository checks, and import the published tarball in a clean npm
 consumer. Weekly automation alone promotes the current verified beta to stable
