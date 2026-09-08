@@ -29,15 +29,10 @@ const SHARED_STRATEGY_CONFIG_FIELDS: Readonly<
   BACKTEST_EXECUTION_DELAY_MS: "number",
   ML_ENABLED: "boolean",
   POLICY_PROFILE_ID: "string",
-  MAKER_FEE_RATE: "number",
-  TAKER_FEE_RATE: "number",
-  FUNDING_ENABLED: "boolean",
   LEVERAGE: "number",
-  SLIPPAGE_BASE_BPS: "number",
-  SLIPPAGE_SPREAD_MULTIPLIER: "number",
-  SLIPPAGE_MARKET_IMPACT_BPS: "number",
-  SLIPPAGE_DELAY_RISK_MULTIPLIER: "number",
-  EXECUTION_COSTS_CACHE_ONLY: "boolean",
+  RISK_FEE_RATE: "number",
+  RISK_SLIPPAGE_BPS: "number",
+  RISK_MARKET_IMPACT_BPS: "number",
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -219,6 +214,10 @@ export const createStrategyConfigParser = <TConfig extends StrategyConfig>({
     return parsed as TConfig;
   };
 };
+
+/** Required by cost-isolated strategies; older Kit versions must not run them. */
+export const createCostIsolatedStrategyConfigParser =
+  createStrategyConfigParser;
 
 export const resolveDirectionalConfigNumber = ({
   config,

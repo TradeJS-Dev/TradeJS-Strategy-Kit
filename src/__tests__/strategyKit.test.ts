@@ -240,6 +240,27 @@ describe("strategy kit risk helpers", () => {
     expect(plan.qty * plan.lossPerUnit).toBeCloseTo(10);
   });
 
+  it("charges fees on slipped fills symmetrically for long and short", () => {
+    const long = buildTradeEconomics({
+      entryPrice: 100,
+      stopLossPrice: 90,
+      takeProfitPrice: 110,
+      feeRate: 0.001,
+      slippageBps: 10,
+    });
+    const short = buildTradeEconomics({
+      entryPrice: 100,
+      stopLossPrice: 110,
+      takeProfitPrice: 90,
+      feeRate: 0.001,
+      slippageBps: 10,
+    });
+    expect(long.lossPerUnit).toBeCloseTo(10.38001, 8);
+    expect(long.rewardPerUnit).toBeCloseTo(9.58001, 8);
+    expect(short.lossPerUnit).toBeCloseTo(10.42001, 8);
+    expect(short.rewardPerUnit).toBeCloseTo(9.62001, 8);
+  });
+
   it("returns zero economics for a zero-distance stop", () => {
     const plan = buildStructureRiskPlan({
       currentPrice: 100,
